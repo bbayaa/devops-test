@@ -137,6 +137,10 @@ MONGODB_URI=$(validate_input "Secret value for the MongoDB instance's URI" ${MON
 ###############################################################
 # Main Functionality
 ###############################################################
+aws configure --profile ${AWS_PROFILE} set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+aws configure --profile ${AWS_PROFILE} set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+aws configure --profile ${AWS_PROFILE} set aws_session_token ${AWS_SESSION_TOKEN}
+
 aws eks update-kubeconfig --profile ${AWS_PROFILE} --region ${AWS_REGION} --name ${CLUSTER_NAME}
 
 verbose_log "Provisioning Kubernetes cluster resources"
