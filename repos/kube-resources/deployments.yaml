@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: heal-webapp
+  name: heal-webapp
+  namespace: heal-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heal-webapp
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: heal-webapp
+    spec:
+      containers:
+      - image: bbayaa/heal-base-app-image:0.0.2
+        name: heal-web-app-container
+        args:
+        - puma
+        - -C
+        - /opt/devops-test/config/puma.rb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: heal-worker
+  name: heal-worker
+  namespace: heal-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heal-worker
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: heal-worker
+    spec:
+      containers:
+      - image: bbayaa/heal-base-app-image:0.0.2
+        name: heal-worker-app-container
+        command: ["/bin/sh", "-ec"]
+        args: [ ". /vault/secrets/config.txt && bundle exec sidekiq start -r /opt/devops-test/config/boot.rb -C /opt/devops-test/config/sidekiq.yml"]
+      serviceAccountName: heal-vault
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: heal-redis
+  name: heal-redis
+  namespace: heal-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heal-redis
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: heal-redis
+    spec:
+      containers:
+      - image: redis
+        name: heal-redis-container
+        ports:
+        - containerPort: 6379
+        resources: {}
